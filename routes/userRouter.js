@@ -10,4 +10,5 @@ router.get('/', (req, res) => { res.send('Welcome'); });
 // Register
 router.post('/register', userControl.register);
 
+
 module.exports = router;
