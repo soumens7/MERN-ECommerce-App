@@ -6,9 +6,7 @@ const userControl = {
     try {
       //console.log("Request Body:", req.body); // Debugging line
       const { name, email, password } = req.body;
-      if (!name || !email || !password) {
-        return res.status(400).json({ msg: "Please fill in all fields." });
-      }
+
       const user = await Users.findOne({ email });
       if (user) return res.status(400).json({ msg: "Email already exists." });
 
