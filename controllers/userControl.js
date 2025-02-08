@@ -1,5 +1,5 @@
 const Users = require("../models/userModel");
-const bcrypt = require("bcrypt");
+//const bcrypt = require("bcrypt");
 
 const userControl = {
   register: async (req, res) => {
@@ -18,11 +18,11 @@ const userControl = {
           .json({ msg: "Password must be at least 6 characters long." });
       }
 
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(password, salt);
+      //const salt = await bcrypt.genSalt(10);
+      //const hashedPassword = await bcrypt.hash(password, salt);
 
-      const newUser = new Users({ name, email, password: hashedPassword });
-
+      const newUser = new Users({ name, email, password});
+      // save mongodb
       await newUser.save();
 
       res.json({ msg: "Register Success!" });
