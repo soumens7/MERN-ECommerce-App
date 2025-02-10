@@ -1,12 +1,13 @@
 const express = require("express");
 const mongoose = require("mongoose");
 require("dotenv").config();
-
+const cookieParser = require("cookie-parser");
 const app = express();
 const PORT = process.env.PORT || 4000;
 
 // Middleware
 app.use(express.json());
+app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
 // Connect to MongoDB before defining routes

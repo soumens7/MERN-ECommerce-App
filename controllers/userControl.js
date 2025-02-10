@@ -1,14 +1,15 @@
 const Users = require("../models/userModel");
-//const bcrypt = require("bcrypt");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 const userControl = {
   register: async (req, res) => {
     try {
       //console.log("Request Body:", req.body); // Debugging line
       const { name, email, password } = req.body;
-        if (!name || !email || !password) {
+      if (!name || !email || !password) {
         return res.status(400).json({ msg: "Please fill in all fields." });
-        }
+      }
       const user = await Users.findOne({ email });
       if (user) return res.status(400).json({ msg: "Email already exists." });
 
@@ -18,18 +19,57 @@ const userControl = {
           .json({ msg: "Password must be at least 6 characters long." });
       }
 
-      //const salt = await bcrypt.genSalt(10);
-      //const hashedPassword = await bcrypt.hash(password, salt);
+      const salt = await bcrypt.genSalt(10);
+      // Password encryption
+      const hashedPassword = await bcrypt.hash(password, salt);
 
-      const newUser = new Users({ name, email, password});
+      const newUser = new Users({ name, email, password: hashedPassword });
       // save mongodb
       await newUser.save();
 
-      res.json({ msg: "Register Success!" });
+      // create jsonwebtoken to authentication
+      const accessToken = createAccessToken({ id: newUser._id });
+      const refreshToken = createAccessToken({ id: newUser._id });
+
+      res.cookie("refreshtoken", refreshToken, {
+        httpOnly: true,
+        path: "/user/refresh_token",
+      });
+
+      res.json({ accessToken });
     } catch (err) {
       return res.status(500).json({ msg: err.message });
     }
   },
+  refreshToken: async (req, res) => {
+    try {
+      const rf_token = req.cookies.refreshtoken;
+
+      if (!rf_token)
+        return res.status(400).json({ msg: "Please login or register" });
+      jwt.verify(rf_token, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
+        if (err)
+          return res.status(400).json({ msg: "Please login or register" });
+        const accessToken = createAccessToken({ id: user.id });
+        res.json({ accessToken });
+      });
+
+      res.json({ rf_token });
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
+};
+
+const createAccessToken = (payload) => {
+  return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
+    expiresIn: "1d",
+  });
+};
+const createRefreshToken = (payload) => {
+  return jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET, {
+    expiresIn: "7d",
+  });
 };
 
 module.exports = userControl;
