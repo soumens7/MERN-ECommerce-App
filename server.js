@@ -29,7 +29,7 @@ mongoose
 // Function to start server after DB is connected
 function startServer() {
   app.use("/user", require("./routes/userRouter.js"));
-
+  app.use("/api", require("./routes/categoryRouter.js"));
   app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
   });
