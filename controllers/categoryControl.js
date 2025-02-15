@@ -1,7 +1,6 @@
 const categoryModel = require("../models/categoryModel");
 const { create } = require("../models/userModel");
-const { Category } = require("@material-ui/icons");
-const category = require("../models/categoryModel");
+const Category = require("../models/categoryModel");
 
 const categoryControl = {
   getCategories: async (req, res) => {
