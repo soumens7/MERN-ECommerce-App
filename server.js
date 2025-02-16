@@ -30,6 +30,8 @@ mongoose
 function startServer() {
   app.use("/user", require("./routes/userRouter.js"));
   app.use("/api", require("./routes/categoryRouter.js"));
+  //app.use("/api", require("./routes/upload"));
+  app.use("/api", require("./routes/productRouter.js"));
   app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
   });
