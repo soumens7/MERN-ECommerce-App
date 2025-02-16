@@ -6,5 +6,11 @@ const authAdmin = require("../middleware/authAdmin"); // Import authAdmin middle
 router.route("/category").get(categoryControl.getCategories);
 router.route("/category").post(auth, authAdmin, categoryControl.createCategory);
 
+router
+  .route("/category/:id")
+  .delete(auth, authAdmin, categoryControl.deleteCategory);
+router
+  .route("/category/:id")
+  .put(auth, authAdmin, categoryControl.updateCategory);
 
 module.exports = router;
