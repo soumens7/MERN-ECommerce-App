@@ -1,12 +1,11 @@
 const express = require("express");
 const router = express.Router();
-const multer = require("multer");
 
-const upload = multer({ dest: "uploads/" });
-
-router.post("/upload", upload.single("file"), (req, res) => {
+router.post("/", (req, res) => {
+  if (!req.files || Object.keys(req.files).length === 0) {
+    return res.status(400).json({ msg: "No files were uploaded" });
+  }
   res.json({ msg: "File uploaded successfully" });
 });
 
-// ✅ Export the router
 module.exports = router;

@@ -9,7 +9,6 @@ const PORT = process.env.PORT || 4000;
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
-
 app.use(
   fileUpload({
     useTempFiles: true,
@@ -37,8 +36,9 @@ mongoose
 function startServer() {
   app.use("/user", require("./routes/userRouter.js"));
   app.use("/api", require("./routes/categoryRouter.js"));
-  app.use("/api", require("./routes/upload.js"));
+  app.use("/api/upload", require("./routes/upload.js")); // ✅ Fixed Route
   app.use("/api", require("./routes/productRouter.js"));
+
   app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
   });
