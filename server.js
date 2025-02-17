@@ -2,12 +2,19 @@ const express = require("express");
 const mongoose = require("mongoose");
 require("dotenv").config();
 const cookieParser = require("cookie-parser");
+const fileUpload = require("express-fileupload");
 const app = express();
 const PORT = process.env.PORT || 4000;
 
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
+
+app.use(
+  fileUpload({
+    useTempFiles: true,
+  })
+);
 app.use(express.urlencoded({ extended: true }));
 
 // Connect to MongoDB before defining routes
@@ -30,7 +37,7 @@ mongoose
 function startServer() {
   app.use("/user", require("./routes/userRouter.js"));
   app.use("/api", require("./routes/categoryRouter.js"));
-  //app.use("/api", require("./routes/upload"));
+  app.use("/api", require("./routes/upload.js"));
   app.use("/api", require("./routes/productRouter.js"));
   app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
