@@ -1,9 +1,81 @@
 const Products = require("../models/productModel");
 
+// Filter, sorting and paginating
+class APIfeatures {
+  constructor(query, queryString) {
+    this.query = query; // Mongoose query object (e.g., Products.find())
+    this.queryString = queryString; // Query parameters from request (req.query)
+  }
+
+  /**
+   * Filters out specified fields (e.g., page, sort, limit) from the query
+   * and converts MongoDB query operators (gte, gt, lt, lte, regex)
+   * to their proper format.
+   */
+  filtering() {
+    // Clone the query string to avoid modifying the original req.query object
+    const queryObj = { ...this.queryString };
+    console.log(queryObj); // Debugging: Check what query parameters were received
+
+    // List of fields to exclude from filtering (used for pagination & sorting)
+    const excludedFields = ["page", "sort", "limit"];
+    excludedFields.forEach((el) => delete queryObj[el]); // Remove them from queryObj
+
+    console.log(queryObj); // Debugging: Check the modified query object
+    // Convert query object into a JSON string
+    let queryStr = JSON.stringify(queryObj);
+    console.log(queryObj.queryStr); // Debugging: Check the JSON string
+
+    // Replace certain operators with MongoDB syntax (e.g., gte → $gte)
+    queryStr = queryStr.replace(
+      /\b(gte|gt|lt|lte|regex)\b/g,
+      (match) => "$" + match
+    );
+
+    // Apply the modified filters to the query
+    this.query.find(JSON.parse(queryStr));
+
+    return this; // Return the instance for method chaining
+  }
+
+  /**
+   * Sorts the query results based on a specified field
+   * Example usage: ?sort=price or ?sort=-createdAt (descending)
+   */
+  sorting() {
+    if (this.queryString.sort) {
+      // Convert comma-separated values into space-separated string (e.g., "price,-rating")
+      const sortBy = this.queryString.sort.split(",").join(" ");
+      this.query = this.query.sort(sortBy); // Apply sorting to Mongoose query
+    } else {
+      this.query = this.query.sort("-createdAt"); // Default sorting: newest first
+    }
+
+    return this;
+  }
+
+  /**
+   * Implements pagination by skipping and limiting results.
+   * Example usage: ?page=2&limit=10
+   */
+  paginating() {
+    const page = this.queryString.page * 1 || 1; // Convert page to a number (default: 1)
+    const limit = this.queryString.limit * 1 || 9; // Convert limit to a number (default: 9)
+    const skip = (page - 1) * limit; // Calculate the number of documents to skip
+
+    this.query = this.query.skip(skip).limit(limit); // Apply pagination
+
+    return this;
+  }
+}
+
 const productControl = {
   getProducts: async (req, res) => {
     try {
-      const products = await Products.find();
+      console.log(req.query);
+      const features = new APIfeatures(Products.find(), req.query);
+      const products = await features.query;
+
       res.json(products);
     } catch (err) {
       return res.status(500).json({ msg: err.message });
@@ -55,7 +127,7 @@ const productControl = {
   updateProduct: async (req, res) => {
     try {
       const { title, price, description, content, images, category } = req.body;
-      if (!images) return res.status(400).json({ msg: "No image upload" });
+      //if (!images) return res.status(400).json({ msg: "No image upload" });
       await Products.findOneAndUpdate(
         { _id: req.params.id },
         {
