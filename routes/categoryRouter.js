@@ -8,9 +8,7 @@ router.route("/category").post(auth, authAdmin, categoryControl.createCategory);
 
 router
   .route("/category/:id")
-  .delete(auth, authAdmin, categoryControl.deleteCategory);
-router
-  .route("/category/:id")
+  .delete(auth, authAdmin, categoryControl.deleteCategory)
   .put(auth, authAdmin, categoryControl.updateCategory);
 
 module.exports = router;
