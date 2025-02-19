@@ -21,10 +21,10 @@ class APIfeatures {
     const excludedFields = ["page", "sort", "limit"];
     excludedFields.forEach((el) => delete queryObj[el]); // Remove them from queryObj
 
-    console.log(queryObj); // Debugging: Check the modified query object
+    //console.log(queryObj); // Debugging: Check the modified query object
     // Convert query object into a JSON string
     let queryStr = JSON.stringify(queryObj);
-    console.log(queryObj.queryStr); // Debugging: Check the JSON string
+    //console.log(queryObj.queryStr); // Debugging: Check the JSON string
 
     // Replace certain operators with MongoDB syntax (e.g., gte → $gte)
     queryStr = queryStr.replace(
