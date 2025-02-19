@@ -46,7 +46,9 @@ class APIfeatures {
     if (this.queryString.sort) {
       // Convert comma-separated values into space-separated string (e.g., "price,-rating")
       const sortBy = this.queryString.sort.split(",").join(" ");
+      console.log(sortBy); // Debugging: Check the sorting criteria
       this.query = this.query.sort(sortBy); // Apply sorting to Mongoose query
+      console.log(sortBy); // Debugging: Check the sorting criteria
     } else {
       this.query = this.query.sort("-createdAt"); // Default sorting: newest first
     }
@@ -60,7 +62,7 @@ class APIfeatures {
    */
   paginating() {
     const page = this.queryString.page * 1 || 1; // Convert page to a number (default: 1)
-    const limit = this.queryString.limit * 1 || 9; // Convert limit to a number (default: 9)
+    const limit = this.queryString.limit * 1 || 10; // Convert limit to a number (default: 9)
     const skip = (page - 1) * limit; // Calculate the number of documents to skip
 
     this.query = this.query.skip(skip).limit(limit); // Apply pagination
@@ -73,10 +75,13 @@ const productControl = {
   getProducts: async (req, res) => {
     try {
       console.log(req.query);
-      const features = new APIfeatures(Products.find(), req.query);
+      const features = new APIfeatures(Products.find(), req.query)
+        .filtering()
+        .sorting()
+        .paginating();
       const products = await features.query;
 
-      res.json(products);
+      res.json({ result: products.length, products });
     } catch (err) {
       return res.status(500).json({ msg: err.message });
     }
